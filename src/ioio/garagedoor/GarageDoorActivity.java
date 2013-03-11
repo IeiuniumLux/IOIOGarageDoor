@@ -1,19 +1,14 @@
 package ioio.garagedoor;
 
+import ioio.garagedoor.garagedoor.R;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
-
-import java.util.Timer;
-import java.util.TimerTask;
-
-import ioio.garagedoor.garagedoor.R;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -21,11 +16,8 @@ import android.widget.ImageView;
 public class GarageDoorActivity extends IOIOActivity {
 
 	private static final int DOOR_PIN = 44;
-	private static final int PULSE_PERIOD = 200;
 
 	private ImageView mDoorButton;
-	private boolean mDoorState = false;
-	private Timer mTimer = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -36,12 +28,8 @@ public class GarageDoorActivity extends IOIOActivity {
 		this.mDoorButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-//				mDoorButton.setEnabled(true);
-//				if (isConnected) {
-					Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-					vib.vibrate(45);
-//					pulsePin(DOOR_PIN);
-//				}
+				Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+				vib.vibrate(45);
 			}
 		});
 		enableUi(false);
