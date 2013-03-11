@@ -13,6 +13,7 @@ import ioio.garagedoor.garagedoor.R;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -35,11 +36,15 @@ public class GarageDoorActivity extends IOIOActivity {
 		this.mDoorButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-				vib.vibrate(45);
-				pulsePin(DOOR_PIN);
+//				mDoorButton.setEnabled(true);
+//				if (isConnected) {
+					Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+					vib.vibrate(45);
+//					pulsePin(DOOR_PIN);
+//				}
 			}
 		});
+		enableUi(false);
 	}
 	
 	/**
@@ -64,6 +69,7 @@ public class GarageDoorActivity extends IOIOActivity {
 		@Override
 		protected void setup() throws ConnectionLostException {
 			mDoorPin = ioio_.openDigitalOutput(DOOR_PIN, false);
+			enableUi(true);
 		}
 
 		/**
@@ -75,12 +81,14 @@ public class GarageDoorActivity extends IOIOActivity {
 		 * @see ioio.lib.util.AbstractIOIOActivity.IOIOThread#loop()
 		 */
 		@Override
-		public void loop() throws ConnectionLostException {
-			mDoorPin.write(mDoorState);
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
+		public void loop() throws ConnectionLostException, InterruptedException {
+			mDoorPin.write(mDoorButton.isPressed());
+			Thread.sleep(10);
+		}
+		
+		@Override
+		public void disconnected() {
+			enableUi(false);
 		}
 	}
 
@@ -94,34 +102,12 @@ public class GarageDoorActivity extends IOIOActivity {
 		return new Looper();
 	}
 
-	private void turnPinOn(int pin) {
-		if (pin == DOOR_PIN) {
-			mDoorState = true;
-		}
-	}
-
-	private void turnPinOff(int pin) {
-		if (pin == DOOR_PIN) {
-			mDoorState = false;
-		}
-	}
-
-	private void pulsePin(int pin) {
-		turnPinOn(pin);
-		mTimer = new Timer();
-		mTimer.schedule(new PinOffTask(pin), PULSE_PERIOD);
-	}
-
-	private class PinOffTask extends TimerTask {
-		int pin;
-
-		public PinOffTask(int pin) {
-			super();
-			this.pin = pin;
-		}
-
-		public void run() {
-			turnPinOff(pin);
-		}
+	private void enableUi(final boolean enable) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mDoorButton.setEnabled(enable);
+			}
+		});
 	}
 }
